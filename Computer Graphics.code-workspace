@@ -2,6 +2,12 @@
 	"folders": [
 		{
 			"path": "JavaScript Tests"
+		},
+		{
+			"path": "Exercise1"
 		}
-	]
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Exercise1"
+	}
 }
