@@ -153,9 +153,9 @@
                 triangleColorBuffer1 = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer1);
                 var color1 = [
-                    255.0, 0.0, 0.0,
-                    255.0, 0.0, 0.0,
-                    255.0, 0.0, 0.0
+                    1.0, 0.0, 0.0,
+                    0.0, 1.0, 0.0,
+                    0.0, 0.0, 1.0
                 ];
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color1), gl.STATIC_DRAW);
                 triangleColorBuffer1.itemSize = 3;
@@ -164,9 +164,9 @@
                 triangleColorBuffer2 = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer2);
                 var color2 = [
-                    255.0, 255.0, 255.0,
-                    255.0, 255.0, 0.0,
-                    0.0, 0.0, 255.0
+                    1.0, 1.0, 0.0,
+                    1.0, 0.0, 1.0,
+                    0.0, 1.0, 1.0
                 ];
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color2), gl.STATIC_DRAW);
                 triangleColorBuffer2.itemSize = 3;
