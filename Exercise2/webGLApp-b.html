@@ -16,7 +16,7 @@
 
             void main(void) {
                 vColor = aColor;
-                gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+                gl_Position = vec4(aVertexPosition, 1.0);
             }
         </script>
         
@@ -117,74 +117,38 @@
 
 
 
-            var triangleVertexPositionBuffer;
             var quadVertexPositionBuffer;
-            var triangleColorBuffer1;
-            var triangleColorBuffer2;
-            var yellowCubeColorBuffer;
+            var quadColorBuffer;
             
             function loadSceneOnGPU() {
-                triangleVertexPositionBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+                quadVertexPositionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
                 var vertices = [
-                     0.0, 1.0, 0.0,
                     -1.0, -1.0, 0.0,
+                    -1.0,  1.0, 0.0,
+                     1.0,  1.0, 0.0,
+                    -1.0, -1.0, 0.0,
+                     1.0,  1.0, 0.0,
                      1.0, -1.0, 0.0
                 ];
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-                triangleVertexPositionBuffer.itemSize = 3;
-                triangleVertexPositionBuffer.numItems = 3;
-
-                quadVertexPositionBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
-                var vertices1 = [
-                     0.0, 0.0, 0.0,
-                     0.0, 1.0, 0.0,
-                     1.0, 1.0, 0.0,
-                     0.0, 0.0, 0.0,
-                     1.0, 1.0, 0.0,
-                     1.0, 0.0, 0.0
-                ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices1), gl.STATIC_DRAW);
                 quadVertexPositionBuffer.itemSize = 3;
                 quadVertexPositionBuffer.numItems = 6;
 
-                //Color buffers
-                triangleColorBuffer1 = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer1);
-                var color1 = [
-                    1.0, 0.0, 0.0,
+                //Colour buffer
+                quadColorBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadColorBuffer);
+                var colour = [
+                    0.0, 0.0, 0.0,
                     0.0, 1.0, 0.0,
-                    0.0, 0.0, 1.0
+                    1.0, 1.0, 1.0,
+                    0.0, 0.0, 0.0,
+                    1.0, 1.0, 1.0,
+                    1.0, 0.0, 0.0
                 ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color1), gl.STATIC_DRAW);
-                triangleColorBuffer1.itemSize = 3;
-                triangleColorBuffer1.numItems = 3;
-
-                triangleColorBuffer2 = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer2);
-                var color2 = [
-                    1.0, 1.0, 0.0,
-                    1.0, 0.0, 1.0,
-                    0.0, 1.0, 1.0
-                ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color2), gl.STATIC_DRAW);
-                triangleColorBuffer2.itemSize = 3;
-                triangleColorBuffer2.numItems = 3;
-                
-                yellowCubeColorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, yellowCubeColorBuffer);
-                var yellow = [
-                    1.0, 1.0, 0.0,
-                    1.0, 1.0, 0.0,
-                    1.0, 1.0, 0.0,
-                    1.0, 1.0, 0.0,
-                    1.0, 1.0, 0.0,
-                    1.0, 1.0, 0.0
-                ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(yellow), gl.STATIC_DRAW);
-                yellowCubeColorBuffer.itemSize = 3;
-                yellowCubeColorBuffer.numItems = 6;
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colour), gl.STATIC_DRAW);
+                quadColorBuffer.itemSize = 3;
+                quadColorBuffer.numItems = 6;
             }
 
 
@@ -192,46 +156,10 @@
                 gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-                mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
-
-                mat4.identity(mvMatrix);
-
-                mat4.translate(mvMatrix, [0.0, 1.5, -10.0]);
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer1);
-                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, triangleColorBuffer1.itemSize, gl.FLOAT, false, 0, 0);
-                sendMatricesToShader();
-                gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-
-                mat4.identity(mvMatrix);
-                mat4.translate(mvMatrix, [0.0, -1.0, -10.0]);
-                mat4.scale(mvMatrix, [1.0, -1.0, 1.0]);
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer2);
-                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, triangleColorBuffer2.itemSize, gl.FLOAT, false, 0, 0);
-                sendMatricesToShader();
-                gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-
-                mat4.identity(mvMatrix);
-                mat4.translate(mvMatrix, [-5.0, 0.0, -10.0]);
-                mat4.rotate(mvMatrix, Math.PI/4, [0.0, 0.0, 1.0]);
-                mat4.scale(mvMatrix, [2.0, -2.0, 2.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, quadVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, yellowCubeColorBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, yellowCubeColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                sendMatricesToShader();
-                gl.drawArrays(gl.TRIANGLES, 0, quadVertexPositionBuffer.numItems);
-
-                mat4.identity(mvMatrix);
-                mat4.translate(mvMatrix, [2.0, 1.0, -10.0]);
-                mat4.scale(mvMatrix, [2.0, -2.0, 2.0]);
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, quadVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, yellowCubeColorBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, yellowCubeColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, quadColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 sendMatricesToShader();
                 gl.drawArrays(gl.TRIANGLES, 0, quadVertexPositionBuffer.numItems);
             }
