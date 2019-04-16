@@ -99,8 +99,8 @@
 
                 shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
                 gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-                shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aColor");
-                gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+                shaderProgram.colorMapUniform = gl.getAttribLocation(shaderProgram, "aColor");
+                gl.enableVertexAttribArray(shaderProgram.colorMapUniform);
 
                 shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
                 shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
@@ -118,7 +118,7 @@
 
 
             var quadVertexPositionBuffer;
-            var quadColorBuffer;
+            var textureCoordsBuffer;
             
             function loadSceneOnGPU() {
                 quadVertexPositionBuffer = gl.createBuffer();
@@ -135,20 +135,20 @@
                 quadVertexPositionBuffer.itemSize = 3;
                 quadVertexPositionBuffer.numItems = 6;
 
-                //Colour buffer
-                quadColorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadColorBuffer);
-                var colour = [
-                    0.0, 0.0, 0.0,
-                    0.0, 1.0, 0.0,
-                    1.0, 1.0, 1.0,
-                    0.0, 0.0, 0.0,
-                    1.0, 1.0, 1.0,
-                    1.0, 0.0, 0.0
+                //Texture coordinates buffer
+                textureCoordsBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordsBuffer);
+                var coords = [
+                    -1.0, -1.0, 0.0,
+                    -1.0,  1.0, 0.0,
+                     1.0,  1.0, 0.0,
+                    -1.0, -1.0, 0.0,
+                     1.0,  1.0, 0.0,
+                     1.0, -1.0, 0.0
                 ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colour), gl.STATIC_DRAW);
-                quadColorBuffer.itemSize = 3;
-                quadColorBuffer.numItems = 6;
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coords), gl.STATIC_DRAW);
+                textureCoordsBuffer.itemSize = 3;
+                textureCoordsBuffer.numItems = 6;
             }
 
 
@@ -180,8 +180,11 @@
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, quadVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadColorBuffer);
-                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, quadColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, myTexture);
+                gl.uniform1i(shaderProgram.colorMapUniform, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordsBuffer);
+                gl.vertexAttribPointer(shaderProgram.colorMapUniform, textureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 sendMatricesToShader();
                 gl.drawArrays(gl.TRIANGLES, 0, quadVertexPositionBuffer.numItems);
             }
