@@ -15,7 +15,7 @@
             varying vec2 vTextureCoord;
 
             void main(void) {
-                gl_Position = vec4(aVertexPosition, 1.0);
+                gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
                 vTextureCoord = aTextureCoord;
             }
         </script>
@@ -119,38 +119,65 @@
 
 
 
+            var triangleVertexPositionBuffer;
             var quadVertexPositionBuffer;
-            var textureCoordsBuffer;
+            var triangleTextureCoordsBuffer;
+            var quadTextureCoordsBuffer;
             
             function loadSceneOnGPU() {
-                quadVertexPositionBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
+                triangleVertexPositionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
                 var vertices = [
+                     0.0, 1.0, 0.0,
                     -1.0, -1.0, 0.0,
-                    -1.0,  1.0, 0.0,
-                     1.0,  1.0, 0.0,
-                    -1.0, -1.0, 0.0,
-                     1.0,  1.0, 0.0,
                      1.0, -1.0, 0.0
                 ];
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+                triangleVertexPositionBuffer.itemSize = 3;
+                triangleVertexPositionBuffer.numItems = 3;
+
+                quadVertexPositionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
+                var vertices1 = [
+                     0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0,
+                     1.0, 1.0, 0.0,
+                     0.0, 0.0, 0.0,
+                     1.0, 1.0, 0.0,
+                     1.0, 0.0, 0.0
+                ];
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices1), gl.STATIC_DRAW);
                 quadVertexPositionBuffer.itemSize = 3;
                 quadVertexPositionBuffer.numItems = 6;
 
                 //Texture coordinates buffer
-                textureCoordsBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordsBuffer);
-                var textureCoordinates = [
-                    0.0, 0.0,
-                    0.0, 1.0,
-                    1.0, 1.0,
-                    0.0, 0.0,
-                    1.0, 1.0,
+                triangleTextureCoordsBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, triangleTextureCoordsBuffer);
+                var triangleTextureCoordinates = [
+                    0.5, 0.5,
+                    0.5, 0.0,
+                    1.0, 0.5,
+                    1.0, 0.5,
+                    0.5, 0.0,
                     1.0, 0.0
                 ];
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
-                textureCoordsBuffer.itemSize = 2;
-                textureCoordsBuffer.numItems = 6;
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleTextureCoordinates), gl.STATIC_DRAW);
+                triangleTextureCoordsBuffer.itemSize = 2;
+                triangleTextureCoordsBuffer.numItems = 6;
+
+                quadTextureCoordsBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadTextureCoordsBuffer);
+                var quadTextureCoordinates = [
+                    0.5, 0.5,
+                    0.5, 1.0,
+                    1.0, 1.0,
+                    0.5, 0.5,
+                    1.0, 1.0,
+                    1.0, 0.5
+                ];
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadTextureCoordinates), gl.STATIC_DRAW);
+                quadTextureCoordsBuffer.itemSize = 2;
+                quadTextureCoordsBuffer.numItems = 6;
             }
 
 
@@ -180,14 +207,31 @@
                 gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+                mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+                
                 mat4.identity(mvMatrix);
+                mat4.translate(mvMatrix, [-3.0, 0.0, -10.0]);
+                mat4.scale(mvMatrix, [2.0, 2.0, 2.0]);
+                gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, myTexture);
+                gl.uniform1i(shaderProgram.sampler2DUniform, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, triangleTextureCoordsBuffer);
+                gl.vertexAttribPointer(shaderProgram.textureCoordinatesAttribute, triangleTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                sendMatricesToShader();
+                gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+
+                mat4.identity(mvMatrix);
+                mat4.translate(mvMatrix, [0.0, -2.0, -10.0]);
+                mat4.scale(mvMatrix, [4.0, 4.0, 4.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, quadVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, myTexture);
                 gl.uniform1i(shaderProgram.sampler2DUniform, 0);
-                gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordsBuffer);
-                gl.vertexAttribPointer(shaderProgram.textureCoordinatesAttribute, textureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadTextureCoordsBuffer);
+                gl.vertexAttribPointer(shaderProgram.textureCoordinatesAttribute, quadTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 sendMatricesToShader();
                 gl.drawArrays(gl.TRIANGLES, 0, quadVertexPositionBuffer.numItems);
             }
