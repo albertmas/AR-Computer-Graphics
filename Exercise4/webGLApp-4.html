@@ -210,6 +210,69 @@
             function handleKeyUp(event) {
                 currentlyPressedKeys[event.keyCode] = false;
             }
+
+            function handleKeys() {
+                if (currentlyPressedKeys[82]) { // R
+                    console.log("R pressed!");
+                }
+            }
+
+            var mouseDown = false;
+            var lastMouseX = null;
+            var lastMouseY = null;
+
+            function handleMouseDown(event) {
+                mouseDown = true;
+
+                if (event.button == 0) { // Left Button
+                    console.log("MouseL pressed!");
+                }
+
+                if (event.button == 1) { // Middle Button
+
+                }
+
+                if (event.button == 2) { // Right Button
+
+                }
+
+                lastMouseX = event.clientX;
+                lastMouseY = event.clientY;
+            }
+
+            function handleMouseMove(event) {
+                if (!mouseDown) {
+                    return;
+                }
+
+                if (event.button == 0) { // Left Button
+
+                }
+
+                if (event.button == 1) { // Middle Button
+
+                }
+
+                if (event.button == 2) { // Right Button
+
+                }
+            }
+
+            function handleMouseUp(event) {
+                mouseDown = false;
+
+                if (event.button == 0) { // Left Button
+
+                }
+
+                if (event.button == 1) { // Middle Button
+
+                }
+
+                if (event.button == 2) { // Right Button
+
+                }
+            }
             
             function moveCamera() {
 
@@ -250,8 +313,9 @@
 
 
             function renderingLoop() {
-            requestAnimFrame(renderingLoop);
-            drawScene();
+                requestAnimFrame(renderingLoop);
+                handleKeys();
+                drawScene();
             }
 
 
@@ -262,6 +326,10 @@
 
                 document.onkeydown = handleKeyDown;
                 document.onkeyup = handleKeyUp;
+
+                canvas.onmousedown = handleKeyDown;
+                document.onmouseup = handleMouseUp;
+                document.onmousemove = handleMouseMove;
 
                 initGL(canvas);
                 initShaders();
