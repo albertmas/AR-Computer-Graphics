@@ -11,9 +11,12 @@
 		},
 		{
 			"path": "Exercise3"
+		},
+		{
+			"path": "Exercise4"
 		}
 	],
 	"settings": {
-		"liveServer.settings.multiRootWorkspaceName": "Exercise3"
+		"liveServer.settings.multiRootWorkspaceName": "Exercise4"
 	}
 }
