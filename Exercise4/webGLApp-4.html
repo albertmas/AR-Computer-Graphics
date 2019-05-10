@@ -212,9 +212,28 @@
             }
 
             function handleKeys() {
+                if (currentlyPressedKeys[87]) { // W
+                    console.log("W pressed!");
+                    cameraPos[1] += 0.1;
+                }
+                if (currentlyPressedKeys[83]) { // S
+                    console.log("S pressed!");
+                    cameraPos[1] -= 0.1;
+                }
+                if (currentlyPressedKeys[65]) { // A
+                    console.log("A pressed!");
+                    cameraPos[0] -= 0.1;
+                }
+                if (currentlyPressedKeys[68]) { // D
+                    console.log("D pressed!");
+                    cameraPos[0] += 0.1;
+                }
                 if (currentlyPressedKeys[82]) { // R
                     console.log("R pressed!");
+                    cameraPos = [0, 0, 0];
                 }
+                mat4.identity(cameraMat);
+                mat4.translate(cameraMat, cameraPos);
             }
 
             var mouseDown = false;
@@ -226,14 +245,15 @@
 
                 if (event.button == 0) { // Left Button
                     console.log("MouseL pressed!");
+                    mat4.rotate(cameraMat, 0.01, [1, 0, 0]);
                 }
 
                 if (event.button == 1) { // Middle Button
-
+                    console.log("MouseWheel pressed!");
                 }
 
                 if (event.button == 2) { // Right Button
-
+                    console.log("MouseR pressed!");
                 }
 
                 lastMouseX = event.clientX;
@@ -246,15 +266,15 @@
                 }
 
                 if (event.button == 0) { // Left Button
-
+                    console.log("MouseL dragging!");
                 }
 
                 if (event.button == 1) { // Middle Button
-
+                    console.log("MouseWheel dragging!");
                 }
 
                 if (event.button == 2) { // Right Button
-
+                    console.log("MouseR dragging!");
                 }
             }
 
@@ -262,15 +282,15 @@
                 mouseDown = false;
 
                 if (event.button == 0) { // Left Button
-
+                    console.log("MouseL released!");
                 }
 
                 if (event.button == 1) { // Middle Button
-
+                    console.log("MouseWheel released!");
                 }
 
                 if (event.button == 2) { // Right Button
-
+                    console.log("MouseR released!");
                 }
             }
             
@@ -285,6 +305,8 @@
                 mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
                 
                 mat4.identity(mvMatrix);
+                mat4.translate(mvMatrix, cameraPos);// Have to push mvMatrix
+                
                 mat4.translate(mvMatrix, [-2.5, 0.0, -10.0]);
                 mat4.scale(mvMatrix, [2.0, 2.0, 2.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
@@ -298,6 +320,7 @@
                 gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 
                 mat4.identity(mvMatrix);
+                mat4.translate(mvMatrix, cameraPos);
                 mat4.translate(mvMatrix, [2.5, 0.0, -10.0]);
                 mat4.scale(mvMatrix, [2.0, 2.0, 2.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
@@ -327,7 +350,7 @@
                 document.onkeydown = handleKeyDown;
                 document.onkeyup = handleKeyUp;
 
-                canvas.onmousedown = handleKeyDown;
+                canvas.onmousedown = handleMouseDown;
                 document.onmouseup = handleMouseUp;
                 document.onmousemove = handleMouseMove;
 
