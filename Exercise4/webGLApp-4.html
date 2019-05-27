@@ -317,10 +317,12 @@
                 mat4.identity(cameraMat);
                 mat4.translate(cameraMat, cameraPos);
                 mat4.multiply(cameraMat, rotationMat);
-                //-----------------TRIANGLE----------------
+                
                 mat4.identity(mvMatrix);
                 mat4.multiply(mvMatrix, cameraMat);
-                
+
+                //-----------------TRIANGLE----------------
+                mvPushMatrix();
                 mat4.translate(mvMatrix, [-2.5, 0.0, -10.0]);
                 mat4.scale(mvMatrix, [2.0, 2.0, 2.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
@@ -332,11 +334,10 @@
                 gl.vertexAttribPointer(shaderProgram.textureCoordinatesAttribute, triangleTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 sendMatricesToShader();
                 gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+                mvPopMatrix();
 
                 //-------------------QUAD------------------
-                mat4.identity(mvMatrix);
-                mat4.multiply(mvMatrix, cameraMat);
-
+                mvPushMatrix();
                 mat4.translate(mvMatrix, [2.5, 0.0, -10.0]);
                 mat4.scale(mvMatrix, [2.0, 2.0, 2.0]);
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexPositionBuffer);
@@ -348,6 +349,24 @@
                 gl.vertexAttribPointer(shaderProgram.textureCoordinatesAttribute, quadTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 sendMatricesToShader();
                 gl.drawArrays(gl.TRIANGLES, 0, quadVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            }
+
+
+            var mvMatrixStack = [];
+
+            function mvPushMatrix() {
+                var copy = mat4.create();
+                mat4.set(mvMatrix, copy);
+                mvMatrixStack.push(copy);
+            }
+
+
+            function mvPopMatrix() {
+                if (mvMatrixStack.length == 0) {
+                    throw "Invalid popMatrix!";
+                }
+                mvMatrix = mvMatrixStack.pop();
             }
 
 
