@@ -249,11 +249,9 @@
                 if (event.button == 0) { // Left Button
                     console.log("MouseL pressed!");
                 }
-
                 if (event.button == 1) { // Middle Button
                     console.log("MouseWheel pressed!");
                 }
-
                 if (event.button == 2) { // Right Button
                     console.log("MouseR pressed!");
                 }
@@ -274,13 +272,11 @@
                     mat4.rotate(rotationMat, deg2rad(deltaX * 0.1), [0, 1, 0]);
                     mat4.rotate(rotationMat, deg2rad(deltaY * 0.1), [1, 0, 0]);
                 }
-
                 if (currentlyPressedButtons[1] == true) { // Middle Button
                     console.log("MouseWheel dragging!");
                     cameraPos[0] += (event.clientX - lastMouseX) * -0.02;
                     cameraPos[1] += (event.clientY - lastMouseY) * 0.02;
                 }
-
                 if (currentlyPressedButtons[2] == true) { // Right Button
                     console.log("MouseR dragging!");
                 }
@@ -296,14 +292,16 @@
                 if (event.button == 0) { // Left Button
                     console.log("MouseL released!");
                 }
-
                 if (event.button == 1) { // Middle Button
                     console.log("MouseWheel released!");
                 }
-
                 if (event.button == 2) { // Right Button
                     console.log("MouseR released!");
                 }
+            }
+
+            function handleMouseWheel(event) {
+                cameraPos[2] -= event.deltaY / 50;
             }
             
             function deg2rad(degs) {
@@ -371,6 +369,7 @@
                 canvas.onmousedown = handleMouseDown;
                 document.onmouseup = handleMouseUp;
                 document.onmousemove = handleMouseMove;
+                document.onmousewheel = handleMouseWheel;
 
                 initGL(canvas);
                 initShaders();
