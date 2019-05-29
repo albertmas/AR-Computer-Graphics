@@ -8,23 +8,20 @@
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
-            attribute vec3 aColor;
             
             uniform mat4 uMVMatrix;
             uniform mat4 uPMatrix;
-            varying vec3 vColor;
             
             void main(void) {
-                vColor = aColor;
                 gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
             }
         </script>
         
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
-            varying vec3 vColor;
+            uniform float aColor[3];
             void main(void) {
-                gl_FragColor = vec4(1.0,0.0,1.0,1.0);
+                gl_FragColor = vec4(aColor[0], aColor[1], aColor[2], 1.0);
             }
         </script>
         
@@ -98,7 +95,9 @@
 
                 shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
                 gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-                
+
+                shaderProgram.vertexColorAttribute = gl.getUniformLocation(shaderProgram, "aColor");
+
                 shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
                 shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
             }
@@ -117,12 +116,12 @@
             }
 
 
-            function loadModelOnGPU(filename, position, rotation, scale){
+            function loadModelOnGPU(filename, position, rotation, scale, color = [1.0, 1.0, 1.0]){
                 var request = new XMLHttpRequest();
                 request.open("GET", filename);
                 request.onreadystatechange = function (){
                     if(request.readyState == 4){
-                        handleLoadedModel(JSON.parse(request.responseText), position, rotation, scale);
+                        handleLoadedModel(JSON.parse(request.responseText), position, rotation, scale, color);
                     }
                 }
                 request.send();
@@ -135,7 +134,7 @@
             var modelVertexIndexBuffer;
 
             var modelsList = [];
-            function handleLoadedModel(modelData, position, rotation, scale){
+            function handleLoadedModel(modelData, position, rotation, scale, color){
                 
                 model = {};
                 model.modelVertexNormalBuffer = gl.createBuffer();
@@ -143,16 +142,19 @@
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelData.vertexNormals), gl.STATIC_DRAW);
                 model.modelVertexNormalBuffer.itemSize = 3;
                 model.modelVertexNormalBuffer.numItems = modelData.vertexNormals.length / 3;
+
                 model.modelVertexTextureCoordBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, model.modelVertexTextureCoordBuffer);
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelData.vertexTextureCoords), gl.STATIC_DRAW);
                 model.modelVertexTextureCoordBuffer.itemSize = 3;
                 model.modelVertexTextureCoordBuffer.numItems = modelData.vertexTextureCoords.length / 2;
+
                 model.modelVertexPositionBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, model.modelVertexPositionBuffer);
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelData.vertexPositions), gl.STATIC_DRAW);
                 model.modelVertexPositionBuffer.itemSize = 3;
                 model.modelVertexPositionBuffer.numItems = modelData.vertexPositions.length / 3;
+                
                 model.modelVertexIndexBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.modelVertexIndexBuffer);
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(modelData.indices), gl.STATIC_DRAW);
@@ -162,6 +164,7 @@
                 model.mPos = position;
                 model.mRot = rotation;
                 model.mScale = scale;
+                model.mColor = color;
                 modelsList.push(model);                
             }
 
@@ -301,7 +304,8 @@
                     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelsList[i].modelVertexIndexBuffer);
 
                     sendMatricesToShader();
-                    gl.drawElements(gl.TRIANGLES, modelsList[i].modelVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT,0);
+                    gl.uniform1fv(shaderProgram.vertexColorAttribute, new Float32Array(modelsList[i].mColor));
+                    gl.drawElements(gl.TRIANGLES, modelsList[i].modelVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
                 }
             }
@@ -347,8 +351,8 @@
                 initGL(canvas);
                 initShaders();
                 
-                loadModelOnGPU("Teapot.json", [cameraPos[0] - 2, cameraPos[1], cameraPos[2]], [0.0, 0.0, 0.0], [0.1, 0.1, 0.1] );
-                loadModelOnGPU("Laptop.json", [cameraPos[0] + 2, cameraPos[1], cameraPos[2]], [0.0, 0.0, 0.0], [2.0, 2.0, 2.0] );
+                loadModelOnGPU("Teapot.json", [cameraPos[0] - 2, cameraPos[1], cameraPos[2]], [0.0, 0.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0]);
+                loadModelOnGPU("Laptop.json", [cameraPos[0] + 2, cameraPos[1], cameraPos[2]], [0.0, 0.0, 0.0], [2.0, 2.0, 2.0], [0.0, 0.0, 1.0]);
 
                 gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 gl.enable(gl.DEPTH_TEST);
