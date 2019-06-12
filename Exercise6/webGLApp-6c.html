@@ -350,8 +350,6 @@
 
                 //-----------------MODELS----------------
                 for(i = 0; i < modelsList.length; i++){
-                    sendLightToShader(modelsList[i].mColor);
-                    
                     mvPushMatrix();
                     mat4.translate(mvMatrix, modelsList[i].mPos);
                     mat4.rotate(mvMatrix, deg2rad(modelsList[i].mRot[0]), [1, 0, 0]);
@@ -366,6 +364,7 @@
                     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelsList[i].modelVertexIndexBuffer);
                     
                     sendMatricesToShader();
+                    sendLightToShader(modelsList[i].mColor);
                     gl.drawElements(gl.TRIANGLES, modelsList[i].modelVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
                 }
